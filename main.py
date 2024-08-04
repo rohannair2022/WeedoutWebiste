@@ -76,10 +76,6 @@ def result():
         df.info()
     df_info = buffer.getvalue()
 
-    #call preprocess function
-    #data_type: imputation
-    #call visulzation function
-    
     return render_template('result.html', 
                            data_type=session.get('data_type'), 
                            model_type=session.get('model_type'), 
