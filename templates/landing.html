@@ -57,27 +57,31 @@
         >
           Welcome to Weedout
         </h1>
-        <h5 style="font-style: italic">- Separating wheat from the chaff</h5>
+        <h5 style="font-style: italic">Separating wheat from the chaff</h5>
         <div class="row justify-content-center mb-4">
           <div class="col-md-3 col-sm-12">
-            <img
-              src="{{ url_for('static', filename='github.png') }}"
-              class="img-fluid mt-3 social-icon github"
-              alt="GitHub Logo"
-            />
+            <a href="https://github.com/rohannair2022/weedout">
+              <img
+                src="{{ url_for('static', filename='github.png') }}"
+                class="img-fluid mt-3 social-icon github"
+                alt="GitHub Logo"
+              />
+            </a>
           </div>
           <div class="col-md-3 col-sm-12">
-            <img
-              src="{{ url_for('static', filename='linkedin.png') }}"
-              class="img-fluid social-icon linkedin"
-              alt="LinkedIn Logo"
-            />
+            <a href="https://www.linkedin.com/company/weedoutdata/">
+              <img
+                src="{{ url_for('static', filename='linkedin.png') }}"
+                class="img-fluid social-icon linkedin"
+                alt="LinkedIn Logo"
+              />
+            </a>
           </div>
         </div>
 
         <a
           href="{{ url_for('index') }}"
-          class="btn btn-outline-light"
+          class="redirect btn btn-outline-light"
           role="button"
         >
           Click here to get started

@@ -1,27 +1,47 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, send_file
+import io
+import zipfile
+import os
+from flask import Flask, render_template, redirect, url_for, session, send_file, after_this_request
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField, RadioField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, InputRequired, Length
 from flask_bootstrap import Bootstrap
 import pandas as pd
-import io
 from io import BytesIO
-import os
-import zipfile
 from contextlib import redirect_stdout
-import threading
+from weedout import preprocess
+import tempfile
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  
 Bootstrap(app)
 
+def make_array(string: str):
+    return [i.strip() for i in string.split(',')]
+
 class NameForm(FlaskForm):
+
     data_type = RadioField('Dataset Type', choices=[('0', 'Cross-Sectional Data'), ('1', 'Time Series Data')], validators=[DataRequired()])
-    model_type = RadioField('Model Type', choices=[('0', 'Regression'), ('1', 'Classification')], validators=[DataRequired()])
-    sampling_response = RadioField('Should we perform sampling if needed?', choices=[('0','Yes'),('1','No')], validators=[DataRequired()])
-    visualization_need = RadioField('Do you want Visualization for your data?',choices =[('0','Yes'),('1','No')], validators=[DataRequired()])
-    csv_file = FileField('Upload CSV', validators=[FileAllowed(['csv'], 'CSV files only!')])
+
+    model_type = RadioField('Model Type for which the data is being trained on', choices=[('0','Regression'),('1','Classification')], validators=[DataRequired()])
+
+    sampling_response = RadioField('Should we perform sampling if needed? (Read Note before selecting options)', choices=[('0','Yes'),('1','No')], validators=[DataRequired()])
+
+    strategy_sample = RadioField('What kind of sampling should we perform?', 
+                                 choices=[('smote','smote'),
+                                          ('undersampling','undersampling'), 
+                                          ('oversampling','oversampling'), 
+                                          ('no sampling','no sampling')], validators=[DataRequired()])
+    
+    target_name  = StringField('Name of the Target Column', validators=[InputRequired(), Length(min=1, max=30)])
+
+    dropped_column = StringField('Name of the columns to drop from the dataset. (Seperate each column name with a comma)', validators=[Length(max=200)])
+
+    untouched_column = StringField('Name of the columns to not scale/encode in the dataset. (Seperate each column name with a comma)', validators=[Length(max=200)])
+
+    csv_file = FileField('Upload CSV File', validators=[FileAllowed(['csv'], 'CSV files only!')])
+
     submit = SubmitField('Submit')
 
 @app.route('/', methods=['GET'])
@@ -36,27 +56,51 @@ def index():
             session['data_type'] = form.data_type.data
             session['model_type'] = form.model_type.data
             session['sampling_response'] = form.sampling_response.data
-            session['visualization_need'] = form.visualization_need.data
+            session['strategy_sample'] = form.strategy_sample.data
+            session['target_name'] = form.target_name.data
+            session['dropped_column'] = form.dropped_column.data
+            session['untouched_column'] = form.untouched_column.data
             
             # Read the CSV file and store its content as a string in the session
             csv_content = form.csv_file.data.read().decode('utf-8')
-            session['csv_content'] = csv_content
+
+            if csv_content:
+                # Define the path to your temp folder
+                temp_folder_path = 'temp/'
+
+                # Ensure the temp folder exists
+                os.makedirs(temp_folder_path, exist_ok=True)
+
+                # Define the full path to the CSV file
+                csv_file_path = os.path.join(temp_folder_path, 'data.csv')
+
+                # Write the CSV content to the file
+                with open(csv_file_path, 'w') as csv_file:
+                    csv_file.write(csv_content)
+
             return redirect(url_for('result'))
+        
     return render_template('index.html', form=form)
 
 
 @app.route('/download_zip')
 def download_zip():
+
+    @after_this_request
+    def cleanup(response):
+        # Delete the zip file
+        os.remove('temp/data.csv')
+        os.remove('temp/data_final.csv')
+        return response
+    
     memory_file = BytesIO()
     
     with zipfile.ZipFile(memory_file, 'w') as zf:
-        zf.writestr('example.txt', 'This is the content of the text file')
-        # Can add more files here
-        # zf.write('/path/to/file', 'filename_in_zip')
+        zf.write('temp/data_final.csv', 'data.csv')
     
     # Move to the beginning of the BytesIO object
     memory_file.seek(0)
-    
+
     # Send the file for download
     return send_file(
         memory_file,
@@ -67,21 +111,64 @@ def download_zip():
 
 @app.route('/results', methods=['GET','POST'])
 def result():
-    csv_content = session.get('csv_content')
-    if csv_content:
-        df = pd.read_csv(io.StringIO(csv_content))
+
+    df = pd.read_csv('temp/data.csv')
+    df_post = None
+    target_column = session.get('target_name')
+    dropped_columns = make_array(session.get('dropped_column'))
+    untouched_columns = make_array(session.get('untouched_column'))
+    type_dataset = int(session.get('data_type'))
+    sampling = int(session.get('sampling_response'))
+    classification = int(session.get('model_type'))
+    strategy_sample =session.get('strategy_sample')
+
 
     buffer = io.StringIO()
     with redirect_stdout(buffer):
         df.info()
     df_info = buffer.getvalue()
 
+    buffer_post = io.StringIO()
+    passed = False
+    with redirect_stdout(buffer_post):
+        try:
+            if strategy_sample != "no sampling":
+                df_post = preprocess.preprocess_pipeline('temp/data.csv', target_column, dropped_columns, untouched_columns, type_dataset, sampling, classification, strategy_sample)
+            else:
+                df_post = preprocess.preprocess_pipeline('temp/data.csv', target_column, dropped_columns, untouched_columns, type_dataset, sampling, classification)
+            passed = True
+        except Exception as e:
+            print(f'Error : {e}')
+
+    if passed: 
+        df_post_process = buffer_post.getvalue()
+        df_post.to_csv('temp/data_final.csv', index=False)
+
+        # Capture df_post.info() output
+        buffer_post_info = io.StringIO()
+        with redirect_stdout(buffer_post_info):
+            df_post.info()
+        df_post_info = buffer_post_info.getvalue()
+    
+    else:
+        df_post_process = buffer_post.getvalue()
+
+        df_post = pd.DataFrame()
+        df_post.to_csv('temp/data_final.csv', index=False)
+
+        df_post_info = False
+
+
     return render_template('result.html', 
                            data_type=session.get('data_type'), 
-                           model_type=session.get('model_type'), 
+                           strategy_sample = session.get('strategy_sample'),
+                           model_type = session.get('model_type'),
                            sampling_response=session.get('sampling_response'),
-                           visualization_need = session.get('visualization_need'),
-                           csv_content=df_info)
+                           target_name = session.get('target_name'),
+                           dropped_column = dropped_columns,
+                           csv_content=df_info,
+                           csv_content_process=df_post_process,
+                           csv_content_post = df_post_info)
 
 if __name__ == '__main__':
     app.run(debug=True)
