@@ -25,9 +25,13 @@ http://weedout.tech/
   
   ```
 - ```bash
-  # Run the Server
+  # Run the Server Cmd Line
   
   python main.py
+
+  ----- or ------
+
+  make run
   
   ```
 
