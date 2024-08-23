@@ -1,6 +1,9 @@
-Flask==2.3.3
+Flask==2.3.2
 Flask-WTF==1.1.1
-WTForms==3.0.1
 Flask-Bootstrap==3.3.7.1
-pandas==2.0.3
+WTForms==3.0.1
+pandas
 numpy==1.24.3
+Werkzeug==2.3.6
+weedout==1.2  
+gunicorn
