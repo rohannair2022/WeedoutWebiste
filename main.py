@@ -26,7 +26,7 @@ class NameForm(FlaskForm):
 
     model_type = RadioField('Model Type for which the data is being trained on', choices=[('0','Regression'),('1','Classification')], validators=[DataRequired()])
 
-    sampling_response = RadioField('Should we perform sampling if needed? (Read Note before selecting options)', choices=[('0','Yes'),('1','No')], validators=[DataRequired()])
+    sampling_response = RadioField('Should we perform sampling if needed? (Read Note before selecting options)', choices=[('1','Yes'),('0','No')], validators=[DataRequired()])
 
     strategy_sample = RadioField('What kind of sampling should we perform?', 
                                  choices=[('smote','smote'),
