@@ -4,7 +4,7 @@
 ### Overview:
 The Weedout website provides a user-friendly GUI for the Weedout package's preprocessing pipeline. Users answer brief questions about their preprocessing needs and upload their dataset. The site then processes the data and returns a zip file with the preprocessed CSV, along with a summary of applied techniques and functions.
 
-http://weedout.tech/
+https://www.weedout.tech/
 
 ### Tech Stack:
 - Server : NGINX, Gunicorn, Flask
