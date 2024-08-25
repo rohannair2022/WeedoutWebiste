@@ -17,7 +17,6 @@
         background-repeat: no-repeat;
         background-attachment: fixed;
         background-color: black;
-        filter: contrast(85%);
         display: flex;
         flex-direction: column;
         min-height: 100vh;
@@ -36,143 +35,96 @@
       }
 
       footer {
-        background-color: #000;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
         padding: 20px;
         text-align: center;
-        border-top: 1px solid #000;
-        color: #bbb;
+        margin-top: 20px;
       }
 
       footer a {
         color: #007bff;
         text-decoration: none;
       }
+
+      /* New styles for navbar */
+      .navbar {
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+      }
+
+      .navbar-brand {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-weight: bold;
+        color: white !important;
+      }
+
+      .nav-link {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-family: Gill Sans, sans-serif;
+      }
+
+      .nav-link:hover {
+        color: white !important;
+      }
     </style>
   </head>
   <body class="text-white">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a
+          class="navbar-brand"
+          href="{{ url_for('landing') }}"
+          style="font-size: large"
+          >WeedOut</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('about')}}">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('index')}}">Pre-process</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('documentation')}}"
+                >Documentation</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
     <div class="container mt-5">
       <div class="row">
-        <div class="col sm-1"></div>
-        <div
-          class="col-sm-5 mt-5 py-5 sm-pe-0 md-pe-5 mb-3"
-          style="font-family: Garmon"
-        >
-          <h3
-            class="text-shadow sm-text-center md-text-start"
-            style="
-              color: white;
-              text-shadow: 1px 1px 5px whitesmoke;
-              font-family: Verdana, Geneva, Tahoma, sans-serif;
-              margin-bottom: 20px;
-            "
-          >
-            What is Weedout?
-          </h3>
-          <h5
-            class="sm-text-center md-text-start"
-            style="font-family: Gill Sans, sans-serif"
-          >
-            Weedout is a powerful and user-friendly data preprocessing library
-            designed to streamline and enhance your machine learning workflow.
-            Weedout automates the tedious tasks of data cleaning,
-            transformation, and feature engineering, freeing you to focus on
-            model development and insights generation. Whether you're working
-            with cross-sectional data or time series, for classification or
-            regression tasks, Weedout provides the essential tools to prepare
-            your data efficiently and effectively. WeedOut prioritizes
-            organizing your data and removing irrelevant information to ensure
-            it is clean, organized, and accurate. This foundation aims at
-            improving the performance of your machine learning models and
-            enhances data-driven decision-making.
-          </h5>
-          <h5
-            class="mb-5 sm-text-center md-text-start"
-            style="font-family: Gill Sans, sans-serif; font-weight: 100"
-          >
-            Note ** The current version of Weedout is designed to handle
-            sampling datasets for two specific types of machine learning models:
-            Binary Classification and Regression. As the project is still in its
-            early stages, the sampling in the preprocessing pipeline is limited
-            to these dataset types.
-          </h5>
-
-          <h3
-            class="text-shadow sm-text-center md-text-start"
-            style="
-              color: white;
-              font-family: Verdana, Geneva, Tahoma, sans-serif;
-              margin-bottom: 20px;
-              text-shadow: 1px 1px 5px whitesmoke;
-            "
-          >
-            Why Weedout?
-          </h3>
-          <ul
-            class="sm-text-center md-text-start mb-5"
-            style="font-family: Gill Sans, sans-serif"
-          >
-            <li class="h5">Effortless data cleaning</li>
-            <li class="h5">Smart feature engineering</li>
-            <li class="h5">Seamless integration with ML libraries</li>
-            <li class="h5">Specialized time series tools</li>
-            <li class="h5">Automated sampling techniques</li>
-          </ul>
-          <h3
-            class="text-shadow sm-text-center md-text-start"
-            style="
-              color: white;
-              text-shadow: 1px 1px 5px whitesmoke;
-              font-family: Verdana, Geneva, Tahoma, sans-serif;
-              margin-bottom: 20px;
-            "
-          >
-            Want to Contribute?
-          </h3>
-          <h5
-            class="mb-3 sm-text-center md-text-start"
-            style="font-family: Gill Sans, sans-serif"
-          >
-            WeedOut is an open-source Python package for data preprocessing, and
-            we'd love your help in making it even better! Whether you're a
-            coding whiz, documentation guru, or data science enthusiast, there's
-            a way for you to contribute. You can help by improving our code,
-            adding new features, writing tests, enhancing documentation,
-            reporting bugs, or even sharing your experience with WeedOut. Every
-            contribution, big or small, helps us grow and innovate. Check out
-            our GitHub repository to get started.
-          </h5>
-          <div class="mt-4 mb-2 sm-text-center md-text-start">
-            <a
-              href="https://github.com/rohannair2022/Weedout"
-              class="redirect btn btn-outline-light"
-              role="button"
-            >
-              Link to Github Repo
-            </a>
-          </div>
-        </div>
-        <div class="col-sm-5 mt-md-5 py-md-5 d-flex justify-content-center">
+        <div class="col sm-2"></div>
+        <div class="col-sm-8 py-md-5 d-flex justify-content-center">
           <div
             class="card mb-5"
             style="
-              width: 450px;
+              width: 900px;
               height: 100%;
               background-color: rgba(255, 255, 255, 0.1);
               backdrop-filter: blur(10px);
               box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             "
           >
-            <img
-              src="{{ url_for('static', filename='logo.png') }}"
-              class="card-img-top mx-4"
-              alt="Card image"
-              style="width: 80%"
-            />
             <div
               class="card-body text-light"
               style="background-color: rgba(0, 0, 0, 0.5)"
             >
-              <h4
+              <h5
                 class="card-title"
                 style="
                   color: #fff;
@@ -181,8 +133,8 @@
                   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
                 "
               >
-                Pre-process your dataset
-              </h4>
+                Pre-process Pipeline (Lite Version)
+              </h5>
               <hr />
               <form method="POST" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
@@ -448,7 +400,7 @@
             </div>
           </div>
         </div>
-        <div class="col sm-1"></div>
+        <div class="col sm-2"></div>
       </div>
     </div>
     <footer>

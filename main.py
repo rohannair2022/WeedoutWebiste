@@ -13,6 +13,7 @@ from contextlib import redirect_stdout
 from weedout import preprocess
 import tempfile
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'  
 Bootstrap(app)
@@ -36,19 +37,33 @@ class NameForm(FlaskForm):
     
     target_name  = StringField('Name of the Target Column', validators=[InputRequired(), Length(min=1, max=30)])
 
-    dropped_column = StringField('Name of the columns to drop from the dataset. (Seperate each column name with a comma)', validators=[Length(max=200)])
+    dropped_column = StringField('Name of the columns to drop from the dataset. (Seprate each column name with a comma)', validators=[Length(max=200)])
 
-    untouched_column = StringField('Name of the columns to not scale/encode in the dataset. (Seperate each column name with a comma)', validators=[Length(max=200)])
+    untouched_column = StringField('Name of the columns to not scale/encode in the dataset. (Seprate each column name with a comma)', validators=[Length(max=200)])
 
     csv_file = FileField('Upload CSV File', validators=[FileAllowed(['csv'], 'CSV files only!')])
 
     submit = SubmitField('Submit')
 
+
+@app.errorhandler(400)
+@app.errorhandler(500)
+def handle_error(error):
+    return render_template('error.html')
+
 @app.route('/', methods=['GET'])
 def landing():
     return render_template('landing.html')
 
-@app.route('/homepage', methods=['GET', 'POST'])
+@app.route('/about', methods =['GET'])
+def about():
+    return render_template('about.html')
+
+@app.route('/documentation', methods=['GET'])
+def documentation():
+    return render_template('documentation.html')
+
+@app.route('/preprocess', methods=['GET', 'POST'])
 def index():
     form = NameForm()
     if form.validate_on_submit():
@@ -85,18 +100,26 @@ def index():
 
 @app.route('/download_zip')
 def download_zip():
+    file_path = os.path.abspath('temp/data_final.csv')
+    if not os.path.exists(file_path):
+        return render_template('error.html', message="failed")
 
     @after_this_request
     def cleanup(response):
-        # Delete the zip file
-        os.remove('temp/data.csv')
-        os.remove('temp/data_final.csv')
+        try:
+            os.remove('temp/data.csv')
+            os.remove('temp/data_final.csv')
+        except FileNotFoundError:
+            pass
         return response
     
     memory_file = BytesIO()
     
     with zipfile.ZipFile(memory_file, 'w') as zf:
-        zf.write('temp/data_final.csv', 'data.csv')
+        if os.path.exists('temp/data_final.csv'):
+            zf.write('temp/data_final.csv', 'data.csv')
+        else:
+            return render_template('error.html'), 404
     
     # Move to the beginning of the BytesIO object
     memory_file.seek(0)
@@ -109,68 +132,75 @@ def download_zip():
         download_name='archive.zip'
     )
 
+
 @app.route('/results', methods=['GET','POST'])
 def result():
 
-    df = pd.read_csv('temp/data.csv')
-    df_post = None
-    target_column = session.get('target_name')
-    dropped_columns = make_array(session.get('dropped_column'))
-    untouched_columns = make_array(session.get('untouched_column'))
-    type_dataset = int(session.get('data_type'))
-    sampling = int(session.get('sampling_response'))
-    classification = int(session.get('model_type'))
-    strategy_sample =session.get('strategy_sample')
+    try:
+        df = pd.read_csv('temp/data.csv')
+        df_post = None
+        target_column = session.get('target_name')
+        dropped_columns = make_array(session.get('dropped_column'))
+        untouched_columns = make_array(session.get('untouched_column'))
+        type_dataset = int(session.get('data_type'))
+        sampling = int(session.get('sampling_response'))
+        classification = int(session.get('model_type'))
+        strategy_sample =session.get('strategy_sample')
 
 
-    buffer = io.StringIO()
-    with redirect_stdout(buffer):
-        df.info()
-    df_info = buffer.getvalue()
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            df.info()
+        df_info = buffer.getvalue()
 
-    buffer_post = io.StringIO()
-    passed = False
-    with redirect_stdout(buffer_post):
-        try:
-            if strategy_sample != "no sampling":
-                df_post = preprocess.preprocess_pipeline('temp/data.csv', target_column, dropped_columns, untouched_columns, type_dataset, sampling, classification, strategy_sample)
-            else:
-                df_post = preprocess.preprocess_pipeline('temp/data.csv', target_column, dropped_columns, untouched_columns, type_dataset, sampling, classification)
-            passed = True
-        except Exception as e:
-            print(f'Error : {e}')
+        buffer_post = io.StringIO()
+        passed = False
+        with redirect_stdout(buffer_post):
+            try:
+                if strategy_sample != "no sampling":
+                    df_post = preprocess.preprocess_pipeline('temp/data.csv', target_column, dropped_columns, untouched_columns, type_dataset, sampling, classification, strategy_sample)
+                else:
+                    df_post = preprocess.preprocess_pipeline('temp/data.csv', target_column, dropped_columns, untouched_columns, type_dataset, sampling, classification)
+                passed = True
+            except Exception as e:
+                print(f'Error : {e}')
 
-    if passed: 
-        df_post_process = buffer_post.getvalue()
-        df_post.to_csv('temp/data_final.csv', index=False)
+        if passed: 
+            df_post_process = buffer_post.getvalue()
+            df_post.to_csv('temp/data_final.csv', index=False)
 
-        # Capture df_post.info() output
-        buffer_post_info = io.StringIO()
-        with redirect_stdout(buffer_post_info):
-            df_post.info()
-        df_post_info = buffer_post_info.getvalue()
+            # Capture df_post.info() output
+            buffer_post_info = io.StringIO()
+            with redirect_stdout(buffer_post_info):
+                df_post.info()
+            df_post_info = buffer_post_info.getvalue()
+        
+        else:
+            df_post_process = buffer_post.getvalue()
+
+            df_post = pd.DataFrame()
+            df_post.to_csv('temp/data_final.csv', index=False)
+
+            df_post_info = False
+
+
+        return render_template('result.html', 
+                            data_type=session.get('data_type'), 
+                            strategy_sample = session.get('strategy_sample'),
+                            model_type = session.get('model_type'),
+                            sampling_response=session.get('sampling_response'),
+                            target_name = session.get('target_name'),
+                            dropped_column = dropped_columns,
+                            csv_content=df_info,
+                            csv_content_process=df_post_process,
+                            csv_content_post = df_post_info)
     
-    else:
-        df_post_process = buffer_post.getvalue()
-
-        df_post = pd.DataFrame()
-        df_post.to_csv('temp/data_final.csv', index=False)
-
-        df_post_info = False
+    except FileNotFoundError:
+        return render_template('error.html'), 500
 
 
-    return render_template('result.html', 
-                           data_type=session.get('data_type'), 
-                           strategy_sample = session.get('strategy_sample'),
-                           model_type = session.get('model_type'),
-                           sampling_response=session.get('sampling_response'),
-                           target_name = session.get('target_name'),
-                           dropped_column = dropped_columns,
-                           csv_content=df_info,
-                           csv_content_process=df_post_process,
-                           csv_content_post = df_post_info)
 
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True, host='0.0.0.0', port=port)

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% import "bootstrap/wtf.html" as wtf %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <title>Weedout</title>
+    <style>
+      body {
+        background-image: url("{{ url_for('static', filename='bg_landing.png') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .social-icon {
+        filter: brightness(0.8) invert(0.1);
+        transition: filter 0.3s ease;
+      }
+
+      .social-icon:hover {
+        filter: brightness(0.5) invert(0.8);
+      }
+
+      .github {
+        max-width: 56px;
+      }
+
+      .linkedin {
+        max-width: 80px;
+      }
+
+      .container {
+        flex: 1;
+      }
+
+      footer {
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      footer a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      /* New styles for navbar */
+      .navbar {
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+      }
+
+      .navbar-brand {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-weight: bold;
+        color: white !important;
+      }
+
+      .nav-link {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-family: Gill Sans, sans-serif;
+      }
+
+      .nav-link:hover {
+        color: white !important;
+      }
+      .expandable {
+        cursor: pointer;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      .expandable:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .expandable::after {
+        content: " +";
+        float: right;
+      }
+      .expandable.active::after {
+        content: " -";
+      }
+      .content {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 5px 5px;
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .container {
+          padding-left: 15px;
+          padding-right: 15px;
+        }
+        h4,
+        h6 {
+          font-size: 1.2rem;
+        }
+        .expandable {
+          padding: 8px;
+        }
+        .content {
+          padding: 8px;
+        }
+      }
+    </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const expandables = document.querySelectorAll(".expandable");
+        expandables.forEach(function (el) {
+          el.addEventListener("click", function () {
+            this.classList.toggle("active");
+            const content = this.nextElementSibling;
+            if (content.style.display === "block") {
+              content.style.display = "none";
+            } else {
+              content.style.display = "block";
+            }
+          });
+        });
+      });
+    </script>
+  </head>
+  <body class="bg-dark text-white">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a
+          class="navbar-brand"
+          href="{{ url_for('landing') }}"
+          style="font-size: large"
+          >WeedOut</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('about')}}">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('index')}}">Pre-process</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('documentation')}}"
+                >Documentation</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-lg-12 mt-3 py-5">
+          <h5
+            class="text-shadow text-center text-md-start mb-5"
+            style="
+              color: white;
+              text-shadow: 1px 1px 5px whitesmoke;
+              font-family: Verdana, Geneva, Tahoma, sans-serif;
+            "
+          >
+            Documentation for Weedout 1.2
+          </h5>
+          <h5
+            class="text-center text-md-start mb-4"
+            style="font-family: Gill Sans, sans-serif"
+          >
+            weedout.preprocess
+          </h5>
+          <ul class="list-unstyled mb-5">
+            <!--Weedout Preprocess: Check Target Variable-->
+            <li class="mb-3">
+              <h6 class="expandable">check_target_variable</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The function returns true if the given target name exists in
+                  the dataframe. It returns false if the target name is not in
+                  the dataframe.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def check_target_variable(df: pd.DataFrame, target_name: str)
+                  -> bool:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>> df (pd.DataFrame) : Given dataframe.</h6>
+                  <h6>> target_name (str) : Given target Name</h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>bool: Indicates if target name exists of not.</h6>
+              </div>
+            </li>
+
+            <!--Weedout Preprocess: Check Duplicate Columns-->
+            <li class="mb-3">
+              <h6 class="expandable">check_duplicate_columns</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The function checks if the dataset has multiple same column
+                  names.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def check_duplicate_columns(file_path: str) -> List[str]:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>> file_path (str) : The path to the csv file</h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>List[str]: A list of all the duplicate column names.</h6>
+              </div>
+            </li>
+
+            <!--Weedout Preprocess: Initial Check Dataframe-->
+            <li class="mb-3">
+              <h6 class="expandable">initial_check_dt</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The function initially checks if the file provided is a valid
+                  CSV file that can be parsed through. It checks and drops
+                  duplicate columns, verifies the target variable, and drops
+                  columns with exceedingly high null values and untouched
+                  columns.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def initial_check_dt(file_path: str, target_variable: str,
+                  columns_to_drop: List[str]) -> Optional[pd.DataFrame]:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>> file_path (str) : The path to the csv file</h6>
+                  <h6>
+                    > target_variable (str) : The target column of your dataset.
+                  </h6>
+                  <h6>
+                    > untouched_columns (List[str]) : The list of columns that
+                    are not going to be modified. These would generally be
+                    columns that have to do with IDw.
+                  </h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>
+                  Optional[pd.DataFrame]: It will return the modified dataframe
+                  if the function is successful.
+                </h6>
+              </div>
+            </li>
+
+            <!--Weedout Preprocess: Cross Sectional Imputation-->
+            <li class="mb-3">
+              <h6 class="expandable">cross_sectional_imputation</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The function works on imputation for the given cross sectional
+                  dataframe. For columns with numeric values, the null values of
+                  that column are imputed/filled with the mean (average) value
+                  of the column. For columns with string values, the null values
+                  of that column are imputed/filled with the mode (most
+                  frequent) value of that column.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def cross_sectional_imputation(cross_sectional_df:
+                  pd.DataFrame, target_name: str) -> pd.DataFrame:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>
+                    > cross_sectional_df (pd.DataFrame) : The dataframe of the
+                    cross-sectional dataset with the target column included.
+                  </h6>
+                  <h6>> target_name (str) : The name of the target column.</h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>
+                  Optional[pd.DataFrame]: It will return the modified dataframe
+                  if the function is successful.
+                </h6>
+              </div>
+            </li>
+
+            <!--Weedout Preprocess: Time Series Imputation-->
+            <li class="mb-3">
+              <h6 class="expandable">time_series_imputation</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The function works on imputation for the given time series
+                  dataframe. For columns with numeric values, the null values of
+                  that column are imputed/filled through the method of linear
+                  interpolation. For columns with string values, the null values
+                  of that column are imputed/filled with the mode (most
+                  frequent) value of that column.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def time_series_imputation(time_series_df: pd.DataFrame,
+                  target_name: str) -> pd.DataFrame:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>
+                    > time_series_df (pd.DataFrame) : The dataframe of the time
+                    series dataset with the target column included.
+                  </h6>
+                  <h6>> target_name (str) : The name of the target column.</h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>
+                  Optional[pd.DataFrame]: It will return the modified dataframe
+                  if the function is successful.
+                </h6>
+              </div>
+            </li>
+
+            <!--Weedout Preprocess: Handle Imbalanced Data-->
+            <li class="mb-3">
+              <h6 class="expandable">handle_imbalanced_data</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The function balances a dataframe defined through a given
+                  sampling strategy to be ran on a classfication model.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def handle_imbalanced_data(df: pd.DataFrame, target_variable:
+                  str, strategy = "smote", k_neighbors=2, untouched_columns:
+                  List[str]=[]) -> pd.DataFrame:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>
+                    > time_series_df (pd.DataFrame) : The dataframe of the time
+                    series dataset with the target column included.
+                  </h6>
+                  <h6>> target_name (str) : The name of the target column.</h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>
+                  Optional[pd.DataFrame]: It will return the modified dataframe
+                  if the function is successful.
+                </h6>
+              </div>
+            </li>
+
+            <!--Weedout Preprocess: Remove Outliers-->
+            <li class="mb-3">
+              <h6 class="expandable">remove_outliers</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The function detects outliers outside the range of 2.575 (99%
+                  CI) and removes the corresponding observations/rows if the
+                  outlier is present in more than 10% of the column.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def remove_outliers(df: pd.DataFrame) -> pd.DataFrame:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>
+                    > df (pd.DataFrame) : The dataframe for the given dataset.
+                  </h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>
+                  pd.DataFrame : The balanced dataframe after following the
+                  sampling stratergy.
+                </h6>
+              </div>
+            </li>
+
+            <!--Weedout Proprocess: Seperate Target Column-->
+            <li class="mb-3">
+              <h6 class="expandable">separate_target_column</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  This function separates the given target column from the data
+                  frame.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def separate_target_column(df: pd.DataFrame, target_variable:
+                  str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>
+                    > df (pd.DataFrame) : The dataframe for the given dataset
+                    that contains the target column as well.
+                  </h6>
+                  <h6>
+                    > target_variable (str) : The name of the target column in
+                    the dataframe.
+                  </h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>
+                  Tuple(pd.DataFrame, pd.DataFrame): Tuple[0] : The dataframe
+                  with all columns except the target column Tuple[1] : The
+                  target column dataframe.
+                </h6>
+              </div>
+            </li>
+
+            <!--Weedout Proprocess: Encoding-->
+            <li class="mb-3">
+              <h6 class="expandable">encoding</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The function encodes the object type columns in the given data
+                  frame. If the number of attributes in a column exceeds more
+                  than 3, then the function performs Label Encoding. If it does
+                  not, then it performs One Hot Encoding.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def encoding(features: pd.DataFrame, untouched_columns:
+                  List[str]=[]) -> pd.DataFrame:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>
+                    > features (str) : The data frame consisting of all the
+                    features (excluding the target column).
+                  </h6>
+                  <h6>
+                    > untouched_columns (str) : The list consists of all the
+                    columns that should not be encoded
+                  </h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>
+                  pd.DataFrame: The dataframe consisting of all the encoded
+                  features.
+                </h6>
+              </div>
+            </li>
+
+            <!--Weedout Proprocess: Feature Scaling-->
+            <li class="mb-3">
+              <h6 class="expandable">feature_scaling</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The function scales continuous-numerical values of the
+                  dataset. If the values in the column have a normal
+                  distribution then we do StandardScaling. If it does not, then
+                  we do MinMaxScaling Note : If the unique value count of the
+                  column is greater than 3, only then will the function apply
+                  scaling to that column.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def feature_scaling(features: pd.DataFrame, unscale_columns:
+                  List[str]) -> pd.DataFrame:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>
+                    > features (str) : The dataframe containing the features to
+                    be scaled.
+                  </h6>
+                  <h6>
+                    > unscale_columns (str) : The list of column names that
+                    represent the columns that should not be scaled.
+                  </h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>
+                  pd.DataFrame: The dataframe consisting of all the scaled
+                  features.
+                </h6>
+              </div>
+            </li>
+
+            <!--Weedout Proprocess: Combine-->
+            <li class="mb-3">
+              <h6 class="expandable">combine</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The functions combines the features dataframe and target
+                  dataframe into one dataframe.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def combine (features: pd.DataFrame, target: pd.DataFrame) ->
+                  pd.DataFrame:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>
+                    > features (pd.DataFrame) : The dataframe that consists of
+                    all the features
+                  </h6>
+                  <h6>
+                    > target (pd.DataFrame) : The dataframe that consists of all
+                    the targets.
+                  </h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>
+                  pd.DataFrame: The combined dataframe that consists of both the
+                  feature dataframe and the target dataframe.
+                </h6>
+              </div>
+            </li>
+
+            <!--Weedout Proprocess: Preprocess Pipeline-->
+            <li class="mb-3">
+              <h6 class="expandable">preprocess_pipeline</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  This function is a stand-alone pipeline used for the free
+                  website template where you can interact with a GUI.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def preprocess_pipeline(file_path: str, target_column: str,
+                  dropped_columns: List[str]=[], untouched_columns:
+                  List[str]=[], type_dataset: int=0, sampling: int=0,
+                  classfication: int=1, strategy_sample="smote"):
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>> file_path (str) : The path to the dataset.</h6>
+                  <h6>
+                    > target_column (str) : The name of the target variable.
+                  </h6>
+                  <h6>
+                    > dropped_columns (List[str]) : The list of column names the
+                    client wants dropped from the dataset.
+                  </h6>
+                  <h6>
+                    > untouched_columns (List[str]) : The list of columns that
+                    should be not scaled/encoded.
+                  </h6>
+                  <h6>
+                    > type_dataset (int) : The type of dataset provided: - 0 ->
+                    Cross Sectional - 1 -> Time Series
+                  </h6>
+                  <h6>
+                    > sampling (int) : Indicates whether the client wants to
+                    perform sampling or not - 0 -> No sampling - 1 -> Sampling
+                  </h6>
+                  <h6>
+                    > classification: int The type of model that the dataset
+                    will be trained on Note: The pipeline does not perform
+                    sampling for regression models. - 0 -> regression - 1 ->
+                    classification
+                  </h6>
+                  <h6>
+                    > stratergy_sample: str: default = SMOTE The name of the
+                    sampling stratergy: - oversampling - undersampling - smote
+                  </h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>pd.DataFrame: The proccessed dataframe.</h6>
+              </div>
+            </li>
+          </ul>
+
+          <!--Weedout DataInfo-->
+          <h5
+            class="text-center text-md-start mb-4"
+            style="font-family: Gill Sans, sans-serif"
+          >
+            weedout.datainfo
+          </h5>
+
+          <!--Weedout Datainfo Correlation Matrix-->
+          <ul class="list-unstyled mb-5">
+            <li class="mb-3">
+              <h6 class="expandable">filtered_correlation_matrix</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  This function prints the Variance Inflation Factor ( VIF =
+                  1/(1-R^2) ) of each feature column. VIF is a strong indicator
+                  of multi-collinearity in our data frame. Note : The user is
+                  expected to remove some of the correlated features based on
+                  the VIF value.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def filtered_correlation_matrix(df: pd.DataFrame):
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>> df (pd.DataFrame) : The dataframe provided by user.</h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>None</h6>
+              </div>
+            </li>
+
+            <!--Weedout Datainfo Display-->
+            <li class="mb-3">
+              <h6 class="expandable">display</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  The function prints the info of the original dataset in the
+                  given file path in comparison to the preprocessed dataframe.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def display(file_path: str ,df: pd.DataFrame) -> None:
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>> file_path (str) : The path to the original file.</h6>
+                  <h6>> df (pd.DataFrame) : The dataframe provided by user.</h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>None</h6>
+              </div>
+            </li>
+          </ul>
+
+          <!-- Weedout Visualization-->
+          <h5
+            class="text-center text-md-start mb-4"
+            style="font-family: Gill Sans, sans-serif"
+          >
+            weedout.visualization
+          </h5>
+          <ul class="list-unstyled mb-5">
+            <li class="mb-3">
+              <h6 class="expandable">show_removed_outlierse</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  This is a visualization function to compare the boxplot spread
+                  of the original dataset and the proccessed dataset.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def show_removed_outliers(df_original: pd.DataFrame,
+                  df_pre_processed: pd.DataFrame):
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>
+                    > df_original (pd.DataFrame) : The dataframe for the
+                    original dataset.
+                  </h6>
+                  <h6>
+                    > df_preprocessed (pd.DataFrame) : The dataframe for the
+                    preprocessed dataset.
+                  </h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>None</h6>
+              </div>
+            </li>
+            <li class="mb-3">
+              <h6 class="expandable">plot_filtered_correlation_matrix</h6>
+              <div class="content px-5 py-5" style="display: none">
+                <h6 class="mb-5" style="color: whitesmoke">
+                  This function plots the correlation matrix of the features
+                  based onVariance Inflation Factor ( VIF = 1/(1-R^2) ) of each
+                  feature column. VIF is a strong indicator of
+                  multi-collinearity in our dataframe. Note : The user is
+                  expected to remove some of the corelated features based on the
+                  VIF value.
+                </h6>
+                <h5 class="mb-5" style="color: yellowgreen">
+                  def plot_filtered_correlation_matrix(df: pd.DataFrame):
+                </h5>
+                <div class="mb-5">
+                  <h6 style="font-weight: bold">Paramters:</h6>
+                  <h6>> df (pd.DataFrame) : The dataframe provided by user.</h6>
+                </div>
+
+                <h6 style="font-weight: bold">Return:</h6>
+                <h6>None</h6>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <p style="margin: 0; font-size: 14px">
+        &copy; 2024 WeedOut. All rights reserved.
+      </p>
+      <p style="margin: 5px 0 0; font-size: 12px">
+        Website Developed by
+        <a href="https://www.linkedin.com/in/rohansunilkumarnair/"
+          >Rohan Nair</a
+        >
+      </p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
