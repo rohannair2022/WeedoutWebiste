@@ -9,7 +9,7 @@ https://www.weedout.tech/
 ### Tech Stack:
 - Server : NGINX, Gunicorn, Flask
 - Front-end : HTML, CSS, Bootstrap
-- Deployment : EC2
+- Deployment : EC2 / _Heroku_, Docker
 - Testing : BDD (Behave)
 
 ### Commands to run locally:
